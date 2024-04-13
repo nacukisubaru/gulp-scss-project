@@ -2,6 +2,8 @@ const gulp = require('gulp');
 const fileInclude = require('gulp-file-include');
 const sass = require('gulp-sass')(require('sass'));
 const server = require('gulp-server-livereload');
+const clean = require('gulp-clean');
+const fs = require('fs');
 
 function includeFiles() {
     return gulp.src('./src/*.html')
@@ -35,6 +37,17 @@ function startServer() {
         }))
 }
 
+//force = true на случай ошибок
+function cleanDist(done) {
+    if (fs.existsSync('./dist')) {
+        return gulp.src('./dist/')
+            .pipe(clean({force: true}));
+    }
+
+    return done();
+}
+
+exports.cleanDist = cleanDist;
 exports.startServer = startServer;
 exports.copyImages = copyImages;
 exports.scss = scss;
