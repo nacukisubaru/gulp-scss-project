@@ -5,9 +5,21 @@ const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
+const plumber = require('gulp-plumber');
+const notify = require('gulp-notify');
+
+const plumberHtmlConfig = {
+    errorHandler: notify.onError({
+        title: 'HTML',
+        message: 'Error <%= error.message %>',
+        sound: false
+    })
+};
 
 function includeFiles() {
     return gulp.src('./src/*.html')
+        //получение уведомлений об ошибках html
+        .pipe(plumber(plumberHtmlConfig))
         //через prefix @@ подключение html файла
         .pipe(fileInclude({
             prefix: '@@',
@@ -16,6 +28,14 @@ function includeFiles() {
         .pipe(gulp.dest('./dist/'));
 }
 
+const plumberScssConfig = {
+    errorHandler: notify.onError({
+        title: 'Styles',
+        message: 'Error <%= error.message %>',
+        sound: false
+    })
+};
+
 function scss() {
     //*.scss любое название файла с расширением scss
     //мы смотрим только те файлы scss что лежат в корне
@@ -23,6 +43,8 @@ function scss() {
     //отдельные css файлы компоненты только главный в котором
     //подюключаются хедер и футер
     return gulp.src('./src/scss/*.scss')
+        //получение уведомлений об ошибках css
+        .pipe(plumber(plumberScssConfig))
         .pipe(sourceMaps.init())
         .pipe(sass())
         //отображение названия scss файла источника в браузере на стилях
