@@ -7,19 +7,22 @@ const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
+const webpack = require('webpack-stream');
 
-const plumberHtmlConfig = {
-    errorHandler: notify.onError({
-        title: 'HTML',
-        message: 'Error <%= error.message %>',
-        sound: false
-    })
-};
+const plumbConfig = (title = 'HTML') => {
+    return {
+        errorHandler: notify.onError({
+            title,
+            message: 'Error <%= error.message %>',
+            sound: false
+        })
+    }
+}
 
 function includeFiles() {
     return gulp.src('./src/*.html')
         //получение уведомлений об ошибках html
-        .pipe(plumber(plumberHtmlConfig))
+        .pipe(plumber(plumbConfig()))
         //через prefix @@ подключение html файла
         .pipe(fileInclude({
             prefix: '@@',
@@ -27,14 +30,6 @@ function includeFiles() {
         }))
         .pipe(gulp.dest('./dist/'));
 }
-
-const plumberScssConfig = {
-    errorHandler: notify.onError({
-        title: 'Styles',
-        message: 'Error <%= error.message %>',
-        sound: false
-    })
-};
 
 function scss() {
     //*.scss любое название файла с расширением scss
@@ -44,7 +39,7 @@ function scss() {
     //подюключаются хедер и футер
     return gulp.src('./src/scss/*.scss')
         //получение уведомлений об ошибках css
-        .pipe(plumber(plumberScssConfig))
+        .pipe(plumber(plumbConfig('CSS')))
         .pipe(sourceMaps.init())
         .pipe(sass())
         //отображение названия scss файла источника в браузере на стилях
@@ -91,12 +86,20 @@ function cleanDist(done) {
     return done();
 }
 
+function js() {
+    return gulp.src('./src/js/*.js')
+    .pipe(plumber(plumbConfig('JS')))
+    .pipe(webpack(require('./webpack.config.js')))
+    .pipe(gulp.dest('./dist/js'))
+}
+
 //нам нужно следить за изменениями в во всех папках и всех
 //scss файлах
 function watch() {
     gulp.watch('./src/scss/**/*.scss', gulp.parallel('scss'));
     gulp.watch('./src/**/*.html', gulp.parallel('includeFiles'));
     gulp.watch('./src/**/*', gulp.parallel('copyImages'));
+    gulp.watch('./src/js/**/*.js', gulp.parallel('js'));
 }
 
 
@@ -106,6 +109,7 @@ exports.startServer = startServer;
 exports.copyImages = copyImages;
 exports.scss = scss;
 exports.includeFiles = includeFiles;
+exports.js = js;
 exports.default = gulp.parallel(
     clean,
     includeFiles,
@@ -113,6 +117,7 @@ exports.default = gulp.parallel(
     copyImages,
     copyFonts,
     copyFiles,
+    js,
     startServer,
     watch
 );
