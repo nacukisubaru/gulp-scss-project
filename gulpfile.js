@@ -59,6 +59,20 @@ function copyImages() {
         .pipe(gulp.dest('./dist/img/'))
 }
 
+function copyFonts() {
+    // ** = любое название папки 
+    // * = любое название файла с любым расширением 
+    return gulp.src('./src/fonts/**/*')
+        .pipe(gulp.dest('./dist/fonts/'))
+}
+
+function copyFiles() {
+    // ** = любое название папки 
+    // * = любое название файла с любым расширением 
+    return gulp.src('./src/files/**/*')
+        .pipe(gulp.dest('./dist/files/'))
+}
+
 function startServer() {
     return gulp.src('./dist/')
         .pipe(server({
@@ -97,6 +111,8 @@ exports.default = gulp.parallel(
     includeFiles,
     scss,
     copyImages,
+    copyFonts,
+    copyFiles,
     startServer,
     watch
 );
