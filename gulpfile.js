@@ -23,7 +23,10 @@ function scss() {
     //отдельные css файлы компоненты только главный в котором
     //подюключаются хедер и футер
     return gulp.src('./src/scss/*.scss')
+        .pipe(sourceMaps.init())
         .pipe(sass())
+        //отображение названия scss файла источника в браузере на стилях
+        .pipe(sourceMaps.write())
         .pipe(gulp.dest('./dist/css/'))
 }
 
