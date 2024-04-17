@@ -20,7 +20,7 @@ const plumbConfig = (title = 'HTML') => {
 }
 
 function includeFiles() {
-    return gulp.src('./src/*.html')
+    return gulp.src('./src/pages/*.html')
         //получение уведомлений об ошибках html
         .pipe(plumber(plumbConfig()))
         //через prefix @@ подключение html файла
@@ -28,7 +28,7 @@ function includeFiles() {
             prefix: '@@',
             basepath: '@file'
         }))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(gulp.dest('./dist/pages'));
 }
 
 function scss() {
@@ -37,7 +37,7 @@ function scss() {
     //потому что нам не нужно собирать отдельно 
     //отдельные css файлы компоненты только главный в котором
     //подюключаются хедер и футер
-    return gulp.src('./src/scss/*.scss')
+    return gulp.src('./src/styles/*.scss')
         //получение уведомлений об ошибках css
         .pipe(plumber(plumbConfig('CSS')))
         .pipe(sourceMaps.init())
@@ -93,6 +93,13 @@ function js() {
     .pipe(gulp.dest('./dist/js'))
 }
 
+function jsInComponents() {
+    return gulp.src('./src/components/*.js')
+    .pipe(plumber(plumbConfig('JS')))
+    .pipe(webpack(require('./webpack.config.js')))
+    .pipe(gulp.dest('./dist/js'))
+}
+
 //нам нужно следить за изменениями в во всех папках и всех
 //scss файлах
 function watch() {
@@ -110,6 +117,7 @@ exports.copyImages = copyImages;
 exports.scss = scss;
 exports.includeFiles = includeFiles;
 exports.js = js;
+exports.jsInComponents = jsInComponents;
 exports.default = gulp.parallel(
     clean,
     includeFiles,
@@ -118,6 +126,7 @@ exports.default = gulp.parallel(
     copyFonts,
     copyFiles,
     js,
+    jsInComponents,
     startServer,
     watch
 );

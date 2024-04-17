@@ -1,7 +1,7 @@
 const config = {
     mode: 'production',
     entry: {
-        index: './src/js/index.js',
+        index: './src/js/test.js',
     },
 
     output: {
